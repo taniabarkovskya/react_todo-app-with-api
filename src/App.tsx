@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import {
   createTodo,
@@ -12,53 +12,47 @@ import {
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { ErrorNotification } from './components/ErrorNotification';
-import { FiltersType } from './types/FiltersType';
+import { FilterType } from './types/FilterType';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
-import { ErrorTypes } from './types/ErrorTypes';
+import { ErrorType } from './types/ErrorType';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [errorTodos, setErrorTodos] = useState(ErrorTypes.NoErrors);
-  const [status, setStatus] = useState(FiltersType.All);
+  const [errorTodos, setErrorTodos] = useState(ErrorType.NoErrors);
+  const [status, setStatus] = useState(FilterType.All);
   const [isLoading, setIsLoading] = useState(true);
   const [loadingTodosIds, setLoadingTodosIds] = useState<number[]>([]);
 
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   const handleErrorClose = useCallback(() => {
-    setErrorTodos(ErrorTypes.NoErrors);
+    setErrorTodos(ErrorType.NoErrors);
   }, []);
 
-  const visibleTodos = todos?.filter(todo => {
+  const visibleTodos = todos.filter(todo => {
     switch (status) {
-      case FiltersType.Completed:
+      case FilterType.Completed:
         return todo.completed;
-      case FiltersType.Active:
+      case FilterType.Active:
         return !todo.completed;
       default:
         return true;
     }
   });
 
-  const activeTodosCount = useMemo(
-    () => todos.filter(todo => !todo.completed).length,
-    [todos],
-  );
+  const activeTodosCount = todos.filter(todo => !todo.completed).length;
 
-  const completedTodos = useMemo(
-    () => todos.filter(todo => todo.completed),
-    [todos],
-  );
+  const completedTodos = todos.filter(todo => todo.completed);
   const completedTodosCount = completedTodos.length;
 
   useEffect(() => {
     setIsLoading(true);
     getTodos()
-      .then(data => setTodos(data))
+      .then(setTodos)
       .catch(() => {
-        setErrorTodos(ErrorTypes.Loading);
+        setErrorTodos(ErrorType.Loading);
       })
       .finally(() => {
         setIsLoading(false);
@@ -71,7 +65,7 @@ export const App: React.FC = () => {
 
       setTodos(currentTodos => [...currentTodos, createdTodo]);
     } catch (error) {
-      setErrorTodos(ErrorTypes.Add);
+      setErrorTodos(ErrorType.Add);
       throw error;
     }
   };
@@ -82,7 +76,7 @@ export const App: React.FC = () => {
       await deleteTodo(todoId);
       setTodos(currentTodos => currentTodos.filter(todo => todo.id !== todoId));
     } catch (error) {
-      setErrorTodos(ErrorTypes.Delete);
+      setErrorTodos(ErrorType.Delete);
       throw error;
     } finally {
       setLoadingTodosIds(currentIds => currentIds.filter(id => id !== todoId));
@@ -106,7 +100,7 @@ export const App: React.FC = () => {
         }),
       );
     } catch (error) {
-      setErrorTodos(ErrorTypes.Update);
+      setErrorTodos(ErrorType.Update);
       throw error;
     } finally {
       setLoadingTodosIds(currentIds =>
@@ -150,7 +144,7 @@ export const App: React.FC = () => {
           onUpdateToggleAll={onUpdateToggleAll}
         />
 
-        {todos?.length && (
+        {todos.length > 0 && (
           <>
             <TodoList
               todos={visibleTodos}

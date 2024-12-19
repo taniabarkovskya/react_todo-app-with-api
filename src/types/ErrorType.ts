@@ -1,4 +1,4 @@
-export enum ErrorTypes {
+export enum ErrorType {
   NoErrors = '',
   Loading = 'Unable to load todos',
   EmptyTitle = 'Title should not be empty',

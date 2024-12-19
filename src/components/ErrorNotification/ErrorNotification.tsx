@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import cn from 'classnames';
-import { ErrorTypes } from '../../types/ErrorTypes';
+import { ErrorType } from '../../types/ErrorType';
 
 type Props = {
   error: string;
@@ -11,7 +11,7 @@ export const ErrorNotification: React.FC<Props> = props => {
   const { error, handleErrorClose } = props;
 
   useEffect(() => {
-    if (error === ErrorTypes.NoErrors) {
+    if (error === ErrorType.NoErrors) {
       return;
     }
 

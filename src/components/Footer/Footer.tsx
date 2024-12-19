@@ -1,13 +1,13 @@
 import React from 'react';
 import cn from 'classnames';
-import { FiltersType } from '../../types/FiltersType';
+import { FilterType } from '../../types/FilterType';
 import { Dispatch, SetStateAction } from 'react';
 
 type Props = {
   activeCount: number | undefined;
   completedCount: number | undefined;
-  status: FiltersType;
-  setStatus: Dispatch<SetStateAction<FiltersType>>;
+  status: FilterType;
+  setStatus: Dispatch<SetStateAction<FilterType>>;
   onDeleteAllCompleted: () => void;
 };
 
@@ -27,10 +27,10 @@ export const Footer: React.FC<Props> = props => {
       </span>
 
       <nav className="filter" data-cy="Filter">
-        {Object.values(FiltersType).map(filter => (
+        {Object.values(FilterType).map(filter => (
           <a
             key={filter}
-            href={`#/${filter === FiltersType.All ? '' : filter.toLowerCase()}`}
+            href={`#/${filter === FilterType.All ? '' : filter.toLowerCase()}`}
             className={cn('filter__link', {
               selected: status === filter,
             })}

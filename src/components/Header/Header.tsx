@@ -9,13 +9,13 @@ import React, {
 import cn from 'classnames';
 import { USER_ID } from '../../api/todos';
 import { Todo } from '../../types/Todo';
-import { ErrorTypes } from '../../types/ErrorTypes';
+import { ErrorType } from '../../types/ErrorType';
 
 type Props = {
   todos: Todo[];
   completedTodosCount: number;
   onAddTodo: (newTodo: Omit<Todo, 'id'>) => Promise<void>;
-  setErrorTodos: Dispatch<SetStateAction<ErrorTypes>>;
+  setErrorTodos: Dispatch<SetStateAction<ErrorType>>;
   tempTodo: Todo | null;
   setTempTodo: Dispatch<SetStateAction<Todo | null>>;
   onUpdateToggleAll: () => void;
@@ -51,24 +51,24 @@ export const Header: React.FC<Props> = props => {
     event.preventDefault();
 
     if (!normalizedTitle) {
-      setErrorTodos(ErrorTypes.EmptyTitle);
+      setErrorTodos(ErrorType.EmptyTitle);
 
       return;
     }
 
-    setTempTodo({
-      id: 0,
+    const newTodo = {
       title: normalizedTitle,
       userId: USER_ID,
       completed: false,
+    };
+
+    setTempTodo({
+      ...newTodo,
+      id: 0,
     });
 
     try {
-      await onAddTodo({
-        title: normalizedTitle,
-        userId: USER_ID,
-        completed: false,
-      });
+      await onAddTodo(newTodo);
       onResetTitle();
     } catch (error) {
     } finally {
