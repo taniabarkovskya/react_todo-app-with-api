@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import {
   createTodo,
@@ -27,9 +27,9 @@ export const App: React.FC = () => {
 
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
-  const handleErrorClose = () => {
+  const handleErrorClose = useCallback(() => {
     setErrorTodos(ErrorTypes.NoErrors);
-  };
+  }, []);
 
   const visibleTodos = todos?.filter(todo => {
     switch (status) {

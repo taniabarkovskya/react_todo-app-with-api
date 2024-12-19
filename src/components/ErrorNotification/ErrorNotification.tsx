@@ -22,7 +22,7 @@ export const ErrorNotification: React.FC<Props> = props => {
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [error]);
+  }, [error, handleErrorClose]);
 
   return (
     <div

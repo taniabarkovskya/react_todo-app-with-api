@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { Todo } from '../../types/Todo';
 import { TodoComponent } from '../TodoComponent';
-import { TodoItem } from '../TodoItem';
+import { TodoTemp } from '../TodoTemp';
 
 type Props = {
   todos: Todo[];
@@ -34,13 +34,13 @@ export const TodoList: React.FC<Props> = props => {
           onDeleteTodo={onDeleteTodo}
           onUpdateTodo={onUpdateTodo}
           isDataLoading={isDataLoading}
-          isDeleting={loadingTodosIds.includes(todo.id)}
+          isTodoLoading={loadingTodosIds.includes(todo.id)}
           editingTodoId={editingTodoId}
           setEditingTodoId={setEditingTodoId}
         />
       ))}
 
-      {tempTodo && <TodoItem todo={tempTodo} onDeleteTodo={onDeleteTodo} />}
+      {tempTodo && <TodoTemp todo={tempTodo} />}
     </section>
   );
 };

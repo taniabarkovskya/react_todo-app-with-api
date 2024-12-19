@@ -15,7 +15,7 @@ type Props = {
   onDeleteTodo: (id: number) => Promise<void>;
   onUpdateTodo: (newTodo: Todo) => Promise<void>;
   isDataLoading: boolean;
-  isDeleting: boolean;
+  isTodoLoading: boolean;
   editingTodoId: number | null;
   setEditingTodoId: Dispatch<SetStateAction<number | null>>;
 };
@@ -26,7 +26,7 @@ export const TodoComponent: React.FC<Props> = props => {
     onDeleteTodo,
     onUpdateTodo,
     isDataLoading,
-    isDeleting,
+    isTodoLoading,
     editingTodoId,
     setEditingTodoId,
   } = props;
@@ -64,13 +64,16 @@ export const TodoComponent: React.FC<Props> = props => {
 
       await onUpdateTodo({
         ...newTodo,
-        id: newTodo.id,
         title: newTitle.trim(),
       });
       setEditingTodoId(null);
-    } catch (error) {
-    } finally {
-      // setEditingTodoId(null);
+    } catch (error) {}
+  };
+
+  const handleEscape = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setEditingTodoId(null);
+      setNewTitle(todo.title);
     }
   };
 
@@ -100,16 +103,13 @@ export const TodoComponent: React.FC<Props> = props => {
             type="text"
             data-cy="TodoTitleField"
             className="todo__title-field"
+            placeholder="Empty todo will be deleted"
             ref={inputNameRef}
             value={newTitle}
             onChange={event => {
               setNewTitle(event.target.value);
             }}
-            onKeyUp={event => {
-              if (event.key === 'Escape') {
-                setEditingTodoId(null);
-              }
-            }}
+            onKeyUp={handleEscape}
           />
         </form>
       ) : (
@@ -135,7 +135,7 @@ export const TodoComponent: React.FC<Props> = props => {
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {
-          'is-active': isDataLoading || isDeleting,
+          'is-active': isDataLoading || isTodoLoading,
         })}
       >
         <div className="modal-background has-background-white-ter" />
