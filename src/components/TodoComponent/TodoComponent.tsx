@@ -41,6 +41,12 @@ export const TodoComponent: React.FC<Props> = props => {
     }
   }, [editingTodoId]);
 
+  const handleDelete = async (todoId: number) => {
+    try {
+      onDeleteTodo(todoId);
+    } catch (error) {}
+  };
+
   const handleToggle = async (newTodo: Todo) => {
     try {
       await onUpdateTodo({ ...newTodo, completed: !newTodo.completed });
@@ -125,7 +131,7 @@ export const TodoComponent: React.FC<Props> = props => {
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={() => onDeleteTodo(todo.id)}
+            onClick={() => handleDelete(todo.id)}
           >
             ×
           </button>
