@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import {
   createTodo,
@@ -27,8 +27,16 @@ export const App: React.FC = () => {
 
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
-  const handleErrorClose = useCallback(() => {
-    setErrorTodos(ErrorType.NoErrors);
+  useEffect(() => {
+    setIsLoading(true);
+    getTodos()
+      .then(setTodos)
+      .catch(() => {
+        setErrorTodos(ErrorType.Loading);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, []);
 
   const visibleTodos = todos.filter(todo => {
@@ -42,35 +50,37 @@ export const App: React.FC = () => {
     }
   });
 
-  const activeTodosCount = todos.filter(todo => !todo.completed).length;
+  const activeTodosCount = useMemo(
+    () => todos.filter(todo => !todo.completed).length,
+    [todos],
+  );
 
-  const completedTodos = todos.filter(todo => todo.completed);
+  const completedTodos = useMemo(
+    () => todos.filter(todo => todo.completed),
+    [todos],
+  );
+
   const completedTodosCount = completedTodos.length;
 
-  useEffect(() => {
-    setIsLoading(true);
-    getTodos()
-      .then(setTodos)
-      .catch(() => {
-        setErrorTodos(ErrorType.Loading);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+  const handleErrorClose = useCallback(() => {
+    setErrorTodos(ErrorType.NoErrors);
   }, []);
 
-  const onAddTodo = async (newTodo: Omit<Todo, 'id'>): Promise<void> => {
-    try {
-      const createdTodo = await createTodo(newTodo);
+  const onAddTodo = useCallback(
+    async (newTodo: Omit<Todo, 'id'>): Promise<void> => {
+      try {
+        const createdTodo = await createTodo(newTodo);
 
-      setTodos(currentTodos => [...currentTodos, createdTodo]);
-    } catch (error) {
-      setErrorTodos(ErrorType.Add);
-      throw error;
-    }
-  };
+        setTodos(currentTodos => [...currentTodos, createdTodo]);
+      } catch (error) {
+        setErrorTodos(ErrorType.Add);
+        throw error;
+      }
+    },
+    [],
+  );
 
-  const onDeleteTodo = async (todoId: number) => {
+  const onDeleteTodo = useCallback(async (todoId: number) => {
     setLoadingTodosIds(currentIds => [...currentIds, todoId]);
     try {
       await deleteTodo(todoId);
@@ -81,15 +91,15 @@ export const App: React.FC = () => {
     } finally {
       setLoadingTodosIds(currentIds => currentIds.filter(id => id !== todoId));
     }
-  };
+  }, []);
 
-  const onDeleteAllCompleted = () => {
+  const onDeleteAllCompleted = useCallback(() => {
     completedTodos.forEach(completedTodo => {
       onDeleteTodo(completedTodo.id);
     });
-  };
+  }, [completedTodos, onDeleteTodo]);
 
-  const onUpdateTodo = async (newTodo: Todo) => {
+  const onUpdateTodo = useCallback(async (newTodo: Todo) => {
     setLoadingTodosIds(currentIds => [...currentIds, newTodo.id]);
     try {
       const updatedTodo = await updateTodo(newTodo);
@@ -107,11 +117,11 @@ export const App: React.FC = () => {
         currentIds.filter(id => id !== newTodo.id),
       );
     }
-  };
+  }, []);
 
-  const onUpdateToggleAll = () => {
+  const onUpdateToggleAll = useCallback(() => {
     todos.forEach(todo => {
-      if (todos.length === completedTodos.length) {
+      if (todos.length === completedTodosCount) {
         onUpdateTodo({ ...todo, completed: false });
 
         return;
@@ -123,7 +133,7 @@ export const App: React.FC = () => {
         return;
       }
     });
-  };
+  }, [todos, completedTodosCount, onUpdateTodo]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -144,7 +154,7 @@ export const App: React.FC = () => {
           onUpdateToggleAll={onUpdateToggleAll}
         />
 
-        {todos.length > 0 && (
+        {!!todos.length && (
           <>
             <TodoList
               todos={visibleTodos}
